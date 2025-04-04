@@ -1,19 +1,21 @@
-name: SCANOSS Scan
+stages:
+  - setup
 
-on: [push, pull_request]
 
-jobs:
-  scan:
-    runs-on: ubuntu-latest
+setup_scanoss:
+  stage: setup
+  image: python:3.9
+  script:
+    - echo "Updating environment..."
+    - apt-get update && apt-get install -y python3 python3-pip
+    - echo "Installing SCANOSS CLI globally..."
+    - pip install --upgrade scanoss  # Install SCANOSS globally
+    - echo "Verifying SCANOSS installation..."
+    - which scanoss-py || echo "scanoss-py not found!"
+    - scanoss-py --version || echo "SCANOSS CLI not installed correctly!"
+    - scanoss-py scan . > output.spdx
+    - cat output.spdx
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install SCANOSS CLI
-        run: |
-          curl -sSL https://scanoss.com/install.sh | bash
-          echo "$HOME/.scanoss/bin" >> $GITHUB_PATH
-
-      - name: Run SCANOSS scan
-        run: scanoss scan . --output scanoss_report.spdx.json
+  artifacts:
+    paths:
+    - output.spdx
