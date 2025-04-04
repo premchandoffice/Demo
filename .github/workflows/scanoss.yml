@@ -1,26 +1,38 @@
-name: SCANOSS Repo Scan
+name: Full Example Workflow with SCANOSS
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - '*'
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  actions: read
 
 jobs:
-  scan:
+   scanoss-code-scan:
+    name: SCANOSS Code Scan
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Run SCANOSS Code Scan
+        id: scanoss-code-scan-step
+        uses: scanoss/code-scan-action@v1
         with:
-          python-version: 3.9
+          policies: copyleft, undeclared 
+          dependencies.enabled: true
+          # api-url: <YOUR_API_URL>
+          # api-key: <YOUR_API_KEY>
 
-      - name: Install SCANOSS CLI
-        run: pip install --upgrade scanoss
 
-      - name: Run SCANOSS scan
-        run: |
-          echo "Scanning entire repo..."
-          scanoss-py scan . > output.spdx
-          echo "SCANOSS SPDX Output:"
-          cat output.spdx
+      - name: Print stdout scan command
+        run: echo "${{ steps.scanoss-code-scan-step.outputs.stdout-scan-command }}"
+
+      - name: Print Results
+        run: cat "${{ steps.scanoss-code-scan-step.outputs.result-filepath }}"
