@@ -20,8 +20,7 @@ jobs:
           pip install --upgrade scanoss
 
       - name: Verify SCANOSS installation
-        run: |
-          scanoss-py --version
+        run: scanoss-py --version
 
       - name: Run SCANOSS scan
         run: |
@@ -29,7 +28,7 @@ jobs:
           cat output.spdx
 
       - name: Upload SCANOSS report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2  # 👈 Using v2 for compatibility
         with:
           name: scanoss-report
           path: output.spdx
