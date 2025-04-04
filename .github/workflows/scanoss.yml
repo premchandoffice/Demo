@@ -1,4 +1,4 @@
-name: SCANOSS Scan
+name: SCANOSS Repo Scan
 
 on: [push, pull_request]
 
@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -16,19 +16,11 @@ jobs:
           python-version: 3.9
 
       - name: Install SCANOSS CLI
-        run: |
-          pip install --upgrade scanoss
-
-      - name: Verify SCANOSS installation
-        run: scanoss-py --version
+        run: pip install --upgrade scanoss
 
       - name: Run SCANOSS scan
         run: |
+          echo "Scanning entire repo..."
           scanoss-py scan . > output.spdx
+          echo "SCANOSS SPDX Output:"
           cat output.spdx
-
-      - name: Upload SCANOSS report
-        uses: actions/upload-artifact@v2  # 👈 Using v2 for compatibility
-        with:
-          name: scanoss-report
-          path: output.spdx
